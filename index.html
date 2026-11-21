@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14532d">
+<meta name="description" content="FocusGrove — a completely free focus timer with every feature: plant trees, ambient sounds, achievements, stats, friends, rooms and more. No ads, no subscriptions.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>FocusGrove — Free Focus Timer, Every Feature Free</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-scene="meadow">
+<header class="topbar">
+  <div class="brand">🌱 FocusGrove</div>
+  <div class="points" title="Sunlight points — earned by focusing, spent in the free shop">☀️ <span id="points">0</span></div>
+</header>
+<nav class="tabs" aria-label="Main">
+  <button class="tab active" data-tab="plant">Plant</button>
+  <button class="tab" data-tab="grove">Grove</button>
+  <button class="tab" data-tab="stats">Stats</button>
+  <button class="tab" data-tab="awards">Awards</button>
+  <button class="tab" data-tab="together">Together</button>
+  <button class="tab" data-tab="more">More</button>
+</nav>
+
+<main>
+<!-- ============ PLANT ============ -->
+<section class="panel" id="panel-plant">
+  <div class="card">
+    <div class="goal-row"><span>Daily goal</span><strong><span id="goalDone">0</span>/<span id="goalTarget">120</span> min</strong></div>
+    <div class="goal-bar"><div id="goalFill"></div></div>
+    <div id="treeStage" class="tree-stage"></div>
+    <div id="timerText" class="timer-text">25:00</div>
+    <p id="quoteText" class="quote"></p>
+    <p id="statusText" class="status">Pick a duration, plant your seed, and focus.</p>
+
+    <div id="setupPanel">
+      <label class="field-label">Mode</label>
+      <div class="chips" id="modeChips">
+        <button class="chip active" data-mode="timer">Timer (counts down)</button>
+        <button class="chip" data-mode="stopwatch">Stopwatch (counts up, min 10m to grow)</button>
+      </div>
+      <div id="durationBlock">
+        <label class="field-label">Duration</label>
+        <div class="chips" id="durationChips">
+          <button class="chip" data-min="10">10m</button><button class="chip" data-min="15">15m</button>
+          <button class="chip active" data-min="25">25m</button><button class="chip" data-min="30">30m</button>
+          <button class="chip" data-min="45">45m</button><button class="chip" data-min="60">60m</button>
+          <button class="chip" data-min="90">90m</button><button class="chip" data-min="120">120m</button>
+        </div>
+        <label class="field-label" for="customMin">Custom minutes</label>
+        <input id="customMin" type="number" min="1" max="480" placeholder="e.g. 20">
+      </div>
+      <label class="field-label">Tree species</label>
+      <div class="chips" id="speciesChips"></div>
+      <p class="hint" id="speciesHint"></p>
+      <label class="field-label" for="tagSelect">Tag</label>
+      <select id="tagSelect"><option>Study</option><option>Work</option><option>Reading</option><option>Coding</option><option>Meditation</option><option>Writing</option><option>Exercise</option><option>Other</option></select>
+      <label class="field-label" for="noteInput">Planting phrase / note (optional)</label>
+      <input id="noteInput" type="text" maxlength="80" placeholder="What are you focusing on?">
+      <label class="field-label" for="soundSelect">Ambient sound (original, generated in-app)</label>
+      <select id="soundSelect"><option value="none">None</option><option value="rain">Rain</option><option value="ocean">Ocean</option><option value="forest">Forest birds</option><option value="cafe">Café murmur</option><option value="white">White noise</option></select>
+      <label class="toggle"><input type="checkbox" id="deepFocus"> Deep focus — extra warning before giving up</label>
+      <label class="toggle"><input type="checkbox" id="strictFocus"> Strict mode — tree withers if you leave the app for over 10 seconds</label>
+      <button id="plantBtn" class="primary">Plant 🌱</button>
+    </div>
+
+    <div id="runningPanel" hidden>
+      <button id="finishEarlyBtn" class="primary" hidden>Finish &amp; grow tree (stopwatch)</button>
+      <button id="giveUpBtn" class="danger">Give up</button>
+      <p class="hint">Your tree is growing with you. Giving up — or leaving in strict mode — will wither it.</p>
+    </div>
+
+    <div id="breakPanel" hidden>
+      <h3>☕ Break time</h3>
+      <div class="timer-text small" id="breakText">05:00</div>
+      <button id="breakBtn" class="primary">Start 5-min break</button>
+      <button id="breakSkipBtn" class="ghost">Skip break</button>
+    </div>
+
+    <div id="diaryPanel" hidden>
+      <h3>📝 Session diary</h3>
+      <p class="hint">How did that session go? This is saved with the session.</p>
+      <input id="diaryInput" type="text" maxlength="200" placeholder="Write a short reflection…">
+      <button id="diarySaveBtn" class="primary">Save reflection</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GROVE ============ -->
+<section class="panel" id="panel-grove" hidden>
+  <div class="card">
+    <h2>Your grove</h2>
+    <div class="chips" id="groveFilters">
+      <button class="chip active" data-period="day">Today</button><button class="chip" data-period="week">This week</button>
+      <button class="chip" data-period="month">This month</button><button class="chip" data-period="year">This year</button>
+      <button class="chip" data-period="all">All time</button>
+    </div>
+    <label class="field-label" for="sceneSelect">Grove scene (shop unlocks apply here)</label>
+    <select id="sceneSelect"></select>
+    <div id="groveGrid" class="grove-grid" style="margin-top:12px"></div>
+    <p id="groveEmpty" class="hint">No trees in this period yet.</p>
+  </div>
+  <div class="card">
+    <h2>🛒 Grove shop — everything earnable, never paid</h2>
+    <p class="hint">Spend sunlight points (☀️ earned 1 per focused minute) on species &amp; scenes. No real money, ever.</p>
+    <div id="shopList" class="shop"></div>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="panel" id="panel-stats" hidden>
+  <div class="card">
+    <h2>Statistics</h2>
+    <div class="stats">
+      <div><strong id="statMinutes">0</strong><span>focus minutes</span></div>
+      <div><strong id="statPlanted">0</strong><span>trees grown</span></div>
+      <div><strong id="statWithered">0</strong><span>withered</span></div>
+      <div><strong id="statStreak">0</strong><span>day streak</span></div>
+      <div><strong id="statRate">—</strong><span>success rate</span></div>
+      <div><strong id="statAvg">0</strong><span>avg session (m)</span></div>
+      <div><strong id="statBest">0</strong><span>best day (m)</span></div>
+      <div><strong id="statToday">0</strong><span>today (m)</span></div>
+    </div>
+    <h3>Last 7 days</h3><div id="weekChart" class="week-chart"></div>
+    <h3>Last 30 days</h3><div id="monthChart" class="week-chart small-chart"></div>
+    <h3>By tag</h3><div id="tagBars"></div>
+    <h3>By species</h3><div id="speciesBars"></div>
+  </div>
+  <div class="card">
+    <h2>Timeline</h2>
+    <input id="historySearch" type="text" placeholder="Search notes, tags, species…">
+    <select id="historyFilter"><option value="all">All sessions</option><option value="done">Grown only</option><option value="dead">Withered only</option></select>
+    <ul id="historyList" class="history"></ul>
+  </div>
+</section>
+
+<!-- ============ AWARDS ============ -->
+<section class="panel" id="panel-awards" hidden>
+  <div class="card"><h2>🏆 Achievements</h2><p class="hint">Every achievement is free — unlock them just by focusing.</p><div id="awardGrid" class="award-grid"></div></div>
+</section>
+
+<!-- ============ TOGETHER ============ -->
+<section class="panel" id="panel-together" hidden>
+  <div class="card">
+    <h2>👥 Plant together</h2>
+    <p class="hint">Add the people you focus with, create a room, and start a shared session from the Plant tab setup — everyone in the room gets credit on the leaderboard. Rooms on this device need no server and no account; share the room code so friends plant the same duration at the same time on their own devices.</p>
+    <label class="field-label" for="friendInput">Add a person</label>
+    <input id="friendInput" type="text" maxlength="30" placeholder="Name">
+    <button id="friendAddBtn" class="primary">Add</button>
+    <ul id="friendList" class="history"></ul>
+    <label class="field-label">Room participants for the next session</label>
+    <div id="roomBox" class="chips"></div>
+    <button id="roomBtn" class="primary">Create room code</button>
+    <p class="status" id="roomCode"></p>
+  </div>
+  <div class="card"><h2>🏅 Leaderboard (this device)</h2><ol id="leaderList" class="history"></ol></div>
+</section>
+
+<!-- ============ MORE ============ -->
+<section class="panel" id="panel-more" hidden>
+  <div class="card">
+    <h2>Settings</h2>
+    <label class="field-label" for="goalInput">Daily focus goal (minutes)</label>
+    <input id="goalInput" type="number" min="5" max="1440">
+    <label class="toggle"><input type="checkbox" id="darkToggle"> Dark mode</label>
+    <label class="toggle"><input type="checkbox" id="notifyToggle"> Notify me when a tree finishes growing</label>
+    <button id="notifyBtn" class="ghost">Allow notifications</button>
+    <h3>Your allowed-apps list (deep focus reminder)</h3>
+    <p class="hint">A web app can't block other apps — that's an Android/iOS system permission. Write the apps you allow yourself during focus here; FocusGrove shows it when you plant in deep-focus mode, and strict mode withers your tree if you leave.</p>
+    <input id="allowInput" type="text" maxlength="200" placeholder="e.g. Phone, Calculator">
+    <button id="allowSaveBtn" class="primary">Save list</button>
+    <h3>Data — yours, exportable any time</h3>
+    <button id="exportJsonBtn" class="primary">Export data (JSON)</button>
+    <button id="exportCsvBtn" class="primary">Export sessions (CSV)</button>
+    <label class="field-label" for="importFile">Import data (JSON)</label>
+    <input id="importFile" type="file" accept="application/json">
+    <button id="clearBtn" class="ghost">Clear all data on this device</button>
+  </div>
+  <div class="card install">
+    <h2>Install — free forever, every platform</h2>
+    <p><strong>Android:</strong> Chrome → ⋮ → “Install app”, or download the APK from this project's GitHub Releases.</p>
+    <p><strong>iPhone / iPad:</strong> Safari → Share → “Add to Home Screen” — full-screen, offline, like a native app.</p>
+    <p><strong>Real trees:</strong> Forest plants real trees through a paid partner programme. FocusGrove is free with no revenue, so it can't fund that — instead your grove tracks a personal pledge: every 100 virtual trees = plant / sponsor 1 real tree yourself, and we show your pledge count in Stats when you grow.</p>
+    <button id="installBtn" class="primary" hidden>Install FocusGrove</button>
+  </div>
+</section>
+</main>
+<footer>FocusGrove is free &amp; open source (MIT). An original app inspired by the plant-a-tree focus idea — not affiliated with Forest. All features free, no ads, no subscriptions.</footer>
+<script src="app.js"></script>
+</body>
+</html>
